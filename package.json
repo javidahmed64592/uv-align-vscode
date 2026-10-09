@@ -1,0 +1,68 @@
+{
+  "name": "uv-align-vscode",
+  "displayName": "uv-align",
+  "description": "Underlines pyproject.toml dependencies that have drifted from uv.lock, using the uv-align CLI.",
+  "version": "0.0.1",
+  "publisher": "javidahmed64592",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "keywords": [
+    "uv",
+    "python",
+    "pyproject",
+    "dependencies"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/pyproject.toml"
+  ],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "uvAlign.recheck",
+        "title": "uv-align: Re-check workspace"
+      },
+      {
+        "command": "uvAlign.showOutput",
+        "title": "uv-align: Show output"
+      }
+    ],
+    "configuration": {
+      "title": "uv-align",
+      "properties": {
+        "uvAlign.executablePath": {
+          "type": "string",
+          "default": "uv-align",
+          "scope": "machine",
+          "markdownDescription": "Path to the `uv-align` executable. The default looks it up on your `PATH` (install it with `uv tool install uv-align`)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test out/test/*.test.js",
+    "package": "vsce package --allow-missing-repository --skip-license"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.5.0"
+  },
+  "allowScripts": {
+    "@vscode/vsce-sign@2.1.0": true,
+    "keytar@7.9.0": true
+  }
+}

@@ -1,0 +1,13 @@
+[4mChanges:
+[0m
+[91m-[39m Pydantic         [91m>=[39m[4m[91m2.10.0[39m[0m[91m,<3[39m
+[92m+[39m Pydantic         [92m>=[39m[4m[92m2.13.5[39m[0m[92m,<3[39m
+
+[91m-[39m my_package       [91m==[39m[4m[91m1.0.0[39m[0m[91m[39m
+[92m+[39m my_package       [92m==[39m[4m[92m1.2.0[39m[0m[92m[39m
+
+[91m-[39m numpy            [91m>= [39m[4m[91m1.0[39m[0m[91m[39m
+[92m+[39m numpy            [92m>= [39m[4m[92m2.1.0[39m[0m[92m[39m
+
+[91m3[39m[91m dependencies[39m are out of sync in: [94mpyproject.toml[39m
+[93m⚠[39m Run '[92muv-align[39m [92msample-workspace/services/api[39m' without the '[92m--check[39m' flag to apply changes.

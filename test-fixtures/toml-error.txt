@@ -1,0 +1,24 @@
+Error: [91m✖[39m Failed to parse TOML in: [94mpyproject.toml[39m
+
+Caused by:
+    TOML parse error at line 1, column 6
+      |
+    1 | this is [not toml
+      |      ^
+    key with no value, expected `=`
+    
+
+Stack backtrace:
+   0: <toml::de::error::Error as anyhow::context::ext::StdError>::ext_context::<alloc::string::String>
+   1: <core::result::Result<toml::value::Value, toml::de::error::Error> as anyhow::Context<toml::value::Value, toml::de::error::Error>>::with_context::<alloc::string::String, uv_align::pyproject::read_dependencies::{closure#1}>
+   2: uv_align::pyproject::read_dependencies
+   3: uv_align::main
+   4: std::sys::backtrace::__rust_begin_short_backtrace::<fn() -> core::result::Result<(), anyhow::Error>, core::result::Result<(), anyhow::Error>>
+   5: std::rt::lang_start::<core::result::Result<(), anyhow::Error>>::{closure#0}
+   6: std::rt::lang_start_internal
+   7: main
+   8: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+   9: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  10: <unknown>

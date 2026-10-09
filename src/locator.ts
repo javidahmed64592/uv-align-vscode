@@ -1,4 +1,4 @@
-import { Change, normaliseName } from './parser';
+import { Change, normaliseName } from "./parser";
 
 /** Zero-based position of a requirement inside pyproject.toml. */
 export interface Location {
@@ -27,7 +27,7 @@ export function* quotedStrings(text: string): Generator<QuotedString> {
 
   const advanceTo = (end: number): void => {
     for (let k = i; k < end; k++) {
-      if (text[k] === '\n') {
+      if (text[k] === "\n") {
         line++;
         lineStart = k + 1;
       }
@@ -38,8 +38,8 @@ export function* quotedStrings(text: string): Generator<QuotedString> {
   while (i < n) {
     const ch = text[i];
 
-    if (ch === '#') {
-      const eol = text.indexOf('\n', i);
+    if (ch === "#") {
+      const eol = text.indexOf("\n", i);
       advanceTo(eol === -1 ? n : eol);
       continue;
     }
@@ -49,15 +49,15 @@ export function* quotedStrings(text: string): Generator<QuotedString> {
       if (text.startsWith(triple, i)) {
         let j = i + 3;
         while (j < n && !text.startsWith(triple, j)) {
-          j += ch === '"' && text[j] === '\\' ? 2 : 1;
+          j += ch === '"' && text[j] === "\\" ? 2 : 1;
         }
         advanceTo(Math.min(j + 3, n));
         continue;
       }
 
       let j = i + 1;
-      while (j < n && text[j] !== '\n' && text[j] !== ch) {
-        j += ch === '"' && text[j] === '\\' ? 2 : 1;
+      while (j < n && text[j] !== "\n" && text[j] !== ch) {
+        j += ch === '"' && text[j] === "\\" ? 2 : 1;
       }
       if (j < n && text[j] === ch) {
         yield { line, column: i + 1 - lineStart, value: text.slice(i + 1, j) };
@@ -77,7 +77,7 @@ export function* quotedStrings(text: string): Generator<QuotedString> {
 const REQUIREMENT =
   /^\s*([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)\s*(?:\[[^\]]*\])?\s*([^;@]*?)\s*(?:;.*)?$/d;
 
-const stripWhitespace = (s: string): string => s.replace(/\s+/g, '');
+const stripWhitespace = (s: string): string => s.replace(/\s+/g, "");
 
 /**
  * Finds every requirement string in `text` that matches the change: same package

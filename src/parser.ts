@@ -15,12 +15,12 @@ export interface Change {
 const ANSI = /\x1b\[[0-9;?]*[A-Za-z]/g;
 
 export function stripAnsi(text: string): string {
-  return text.replace(ANSI, '');
+  return text.replace(ANSI, "");
 }
 
 /** PEP 503 normalisation: "My_Package" and "my-package" compare equal. */
 export function normaliseName(name: string): string {
-  return name.toLowerCase().replace(/[-_.]+/g, '-');
+  return name.toLowerCase().replace(/[-_.]+/g, "-");
 }
 
 /** "- name   >=1.0" or "+ name   >=2.0" (name never contains spaces; the constraint may). */
@@ -48,7 +48,7 @@ export function parseCheckOutput(output: string): Change[] {
       continue;
     }
     const [, sign, name, constraint] = match;
-    if (sign === '-') {
+    if (sign === "-") {
       removed = { name, constraint };
       continue;
     }
@@ -68,10 +68,10 @@ export function parseCheckOutput(output: string): Change[] {
 /** First meaningful line of an error, without uv-align's "Error:" / "✖" prefixes. */
 export function summariseError(output: string): string {
   for (const raw of stripAnsi(output).split(/\r?\n/)) {
-    const line = raw.replace(/^\s*(?:Error:\s*)?(?:[✖✗]\s*)?/, '').trim();
+    const line = raw.replace(/^\s*(?:Error:\s*)?(?:[✖✗]\s*)?/, "").trim();
     if (line) {
       return line;
     }
   }
-  return '';
+  return "";
 }

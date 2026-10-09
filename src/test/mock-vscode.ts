@@ -3,8 +3,8 @@
  * so its behaviour (which folders get checked, when squiggles appear and disappear)
  * can be tested without launching VS Code. File access is backed by the real disk.
  */
-import * as fsp from 'node:fs/promises';
-import * as path from 'node:path';
+import * as fsp from "node:fs/promises";
+import * as path from "node:path";
 
 type Listener<T> = (value: T) => void;
 
@@ -24,10 +24,10 @@ class Emitter<T> {
 export class Uri {
   private constructor(
     readonly scheme: string,
-    readonly fsPath: string,
+    readonly fsPath: string
   ) {}
   static file(p: string): Uri {
-    return new Uri('file', path.resolve(p));
+    return new Uri("file", path.resolve(p));
   }
 }
 
@@ -48,11 +48,19 @@ export class Diagnostic {
   constructor(
     readonly range: Range,
     readonly message: string,
-    readonly severity: number = DiagnosticSeverity.Error,
+    readonly severity: number = DiagnosticSeverity.Error
   ) {}
 }
 
-const EXCLUDED = new Set(['node_modules', '.venv', 'venv', '.git', 'target', '__pycache__', 'site-packages']);
+const EXCLUDED = new Set([
+  "node_modules",
+  ".venv",
+  "venv",
+  ".git",
+  "target",
+  "__pycache__",
+  "site-packages",
+]);
 
 async function findUvLocks(dir: string, out: string[]): Promise<void> {
   for (const entry of await fsp.readdir(dir, { withFileTypes: true })) {
@@ -60,7 +68,7 @@ async function findUvLocks(dir: string, out: string[]): Promise<void> {
       if (!EXCLUDED.has(entry.name)) {
         await findUvLocks(path.join(dir, entry.name), out);
       }
-    } else if (entry.name === 'uv.lock') {
+    } else if (entry.name === "uv.lock") {
       out.push(path.join(dir, entry.name));
     }
   }
@@ -71,7 +79,7 @@ export const state = {
   roots: [] as string[],
   executablePath: undefined as string | undefined,
   diagnostics: new Map<string, Diagnostic[]>(),
-  status: { visible: false, text: '', tooltip: '' },
+  status: { visible: false, text: "", tooltip: "" },
 };
 
 export const events = {
@@ -86,20 +94,20 @@ export function reset(roots: string[], executablePath: string | undefined): void
   state.roots = roots;
   state.executablePath = executablePath;
   state.diagnostics = new Map();
-  state.status = { visible: false, text: '', tooltip: '' };
+  state.status = { visible: false, text: "", tooltip: "" };
 }
 
 export async function waitFor(condition: () => boolean, timeoutMs = 8000): Promise<void> {
   const started = Date.now();
   while (!condition()) {
     if (Date.now() - started > timeoutMs) {
-      throw new Error('waitFor timed out');
+      throw new Error("waitFor timed out");
     }
-    await new Promise((resolve) => setTimeout(resolve, 25));
+    await new Promise(resolve => setTimeout(resolve, 25));
   }
 }
 
-export const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+export const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 export const api = {
   Uri,
@@ -115,7 +123,11 @@ export const api = {
     }),
   },
   window: {
-    createOutputChannel: () => ({ appendLine: () => undefined, show: () => undefined, dispose: () => undefined }),
+    createOutputChannel: () => ({
+      appendLine: () => undefined,
+      show: () => undefined,
+      dispose: () => undefined,
+    }),
     createStatusBarItem: () => ({
       set text(value: string) {
         state.status.text = value;
@@ -135,7 +147,7 @@ export const api = {
       for (const root of state.roots) {
         await findUvLocks(root, found);
       }
-      return found.slice(0, maxResults).map((p) => Uri.file(p));
+      return found.slice(0, maxResults).map(p => Uri.file(p));
     },
     fs: {
       stat: async (uri: Uri) => fsp.stat(uri.fsPath),
@@ -149,6 +161,8 @@ export const api = {
     }),
     onDidChangeWorkspaceFolders: events.foldersChanged.event,
     onDidChangeConfiguration: events.configChanged.event,
-    getConfiguration: () => ({ get: (key: string) => (key === 'executablePath' ? state.executablePath : undefined) }),
+    getConfiguration: () => ({
+      get: (key: string) => (key === "executablePath" ? state.executablePath : undefined),
+    }),
   },
 };

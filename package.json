@@ -54,10 +54,11 @@
     "watch": "tsc -watch -p ./",
     "test": "npm run compile && node --test out/test/*.test.js",
     "package": "vsce package --allow-missing-repository --skip-license",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

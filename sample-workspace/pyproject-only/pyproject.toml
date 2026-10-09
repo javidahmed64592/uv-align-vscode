@@ -1,0 +1,7 @@
+# Only a pyproject.toml, no uv.lock: the extension ignores this folder completely.
+[project]
+name = "pyproject-only-demo"
+version = "0.1.0"
+dependencies = [
+    "requests>=1.0.0",
+]

@@ -1,0 +1,7 @@
+# Only a uv.lock, no pyproject.toml: the extension ignores this folder completely.
+version = 1
+
+[[package]]
+name = "requests"
+version = "2.32.5"
+source = { registry = "https://pypi.org/simple" }

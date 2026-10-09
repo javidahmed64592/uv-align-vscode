@@ -1,16 +1,26 @@
-import * as path from 'node:path';
-import * as vscode from 'vscode';
-import { locateChange } from './locator';
-import { Change, normaliseName } from './parser';
-import { CheckOutcome, runCheck } from './runner';
+import * as path from "node:path";
+import * as vscode from "vscode";
+import { locateChange } from "./locator";
+import { Change, normaliseName } from "./parser";
+import { CheckOutcome, runCheck } from "./runner";
 
-const EXCLUDED_DIRS = ['node_modules', '.venv', 'venv', '.git', 'target', '__pycache__', 'site-packages'];
-const EXCLUDE_GLOB = `**/{${EXCLUDED_DIRS.join(',')}}/**`;
+const EXCLUDED_DIRS = [
+  "node_modules",
+  ".venv",
+  "venv",
+  ".git",
+  "target",
+  "__pycache__",
+  "site-packages",
+];
+const EXCLUDE_GLOB = `**/{${EXCLUDED_DIRS.join(",")}}/**`;
 const DEBOUNCE_MS = 500;
 const MAX_PROJECTS = 500;
 
 export function isExcluded(fsPath: string): boolean {
-  return fsPath.split(/[\\/]/).some((segment) => EXCLUDED_DIRS.includes(segment));
+  return fsPath
+    .split(/[\\/]/)
+    .some((segment) => EXCLUDED_DIRS.includes(segment));
 }
 
 /**
@@ -19,9 +29,13 @@ export function isExcluded(fsPath: string): boolean {
  * checked and never reported.
  */
 export class UvAlignController implements vscode.Disposable {
-  private readonly diagnostics = vscode.languages.createDiagnosticCollection('uv-align');
-  private readonly output = vscode.window.createOutputChannel('uv-align');
-  private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+  private readonly diagnostics =
+    vscode.languages.createDiagnosticCollection("uv-align");
+  private readonly output = vscode.window.createOutputChannel("uv-align");
+  private readonly status = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left,
+    0,
+  );
 
   /** Valid uv project folders -> their pyproject.toml. */
   private readonly projects = new Map<string, vscode.Uri>();
@@ -33,7 +47,9 @@ export class UvAlignController implements vscode.Disposable {
   private disposed = false;
 
   start(): void {
-    const watcher = vscode.workspace.createFileSystemWatcher('**/{pyproject.toml,uv.lock}');
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      "**/{pyproject.toml,uv.lock}",
+    );
     this.disposables.push(
       watcher,
       watcher.onDidCreate((uri) => this.onFileEvent(uri)),
@@ -41,7 +57,7 @@ export class UvAlignController implements vscode.Disposable {
       watcher.onDidDelete((uri) => this.onFileEvent(uri)),
       vscode.workspace.onDidChangeWorkspaceFolders(() => void this.scan()),
       vscode.workspace.onDidChangeConfiguration((event) => {
-        if (event.affectsConfiguration('uvAlign.executablePath')) {
+        if (event.affectsConfiguration("uvAlign.executablePath")) {
           this.recheck();
         }
       }),
@@ -74,10 +90,14 @@ export class UvAlignController implements vscode.Disposable {
 
   /** Finds every folder with both files; forgets folders that no longer qualify. */
   private async scan(): Promise<void> {
-    const locks = await vscode.workspace.findFiles('**/uv.lock', EXCLUDE_GLOB, MAX_PROJECTS);
+    const locks = await vscode.workspace.findFiles(
+      "**/uv.lock",
+      EXCLUDE_GLOB,
+      MAX_PROJECTS,
+    );
     const found = new Set<string>();
     for (const lock of locks) {
-      if (lock.scheme !== 'file') {
+      if (lock.scheme !== "file") {
         continue;
       }
       const folder = path.dirname(lock.fsPath);
@@ -101,7 +121,7 @@ export class UvAlignController implements vscode.Disposable {
   }
 
   private onFileEvent(uri: vscode.Uri): void {
-    if (uri.scheme !== 'file' || isExcluded(uri.fsPath)) {
+    if (uri.scheme !== "file" || isExcluded(uri.fsPath)) {
       return;
     }
     this.schedule(path.dirname(uri.fsPath), DEBOUNCE_MS);
@@ -127,13 +147,15 @@ export class UvAlignController implements vscode.Disposable {
       return;
     }
 
-    const pyproject = vscode.Uri.file(path.join(folder, 'pyproject.toml'));
+    const pyproject = vscode.Uri.file(path.join(folder, "pyproject.toml"));
     this.projects.set(folder, pyproject);
     const run = {};
     this.latestRun.set(folder, run);
 
-    const configured = vscode.workspace.getConfiguration('uvAlign').get<string>('executablePath');
-    const outcome = await runCheck(configured || 'uv-align', folder);
+    const configured = vscode.workspace
+      .getConfiguration("uvAlign")
+      .get<string>("executablePath");
+    const outcome = await runCheck(configured || "uv-align", folder);
     if (this.disposed || this.latestRun.get(folder) !== run) {
       return;
     }
@@ -147,29 +169,34 @@ export class UvAlignController implements vscode.Disposable {
     outcome: CheckOutcome,
   ): Promise<void> {
     switch (outcome.kind) {
-      case 'in-sync':
+      case "in-sync":
         this.diagnostics.delete(pyproject);
         this.setProblem(folder, undefined);
         this.log(`${folder}: in sync`);
         return;
 
-      case 'out-of-sync': {
+      case "out-of-sync": {
         let text: string;
         try {
-          text = Buffer.from(await vscode.workspace.fs.readFile(pyproject)).toString('utf8');
+          text = Buffer.from(
+            await vscode.workspace.fs.readFile(pyproject),
+          ).toString("utf8");
         } catch {
           return; // File vanished mid-run; the watcher will trigger another refresh.
         }
         if (this.disposed || this.latestRun.get(folder) !== run) {
           return;
         }
-        this.diagnostics.set(pyproject, this.buildDiagnostics(text, outcome.changes));
+        this.diagnostics.set(
+          pyproject,
+          this.buildDiagnostics(text, outcome.changes),
+        );
         this.setProblem(folder, undefined);
         this.log(`${folder}: ${outcome.changes.length} out of sync`);
         return;
       }
 
-      case 'missing-binary':
+      case "missing-binary":
         this.diagnostics.delete(pyproject);
         this.setProblem(
           folder,
@@ -178,7 +205,7 @@ export class UvAlignController implements vscode.Disposable {
         this.log(`${folder}: executable '${outcome.executable}' not found`);
         return;
 
-      case 'error':
+      case "error":
         this.diagnostics.delete(pyproject);
         this.setProblem(folder, `${path.basename(folder)}: ${outcome.message}`);
         this.log(`${folder}: ${outcome.message}\n${outcome.output}`);
@@ -186,7 +213,10 @@ export class UvAlignController implements vscode.Disposable {
     }
   }
 
-  private buildDiagnostics(text: string, changes: Change[]): vscode.Diagnostic[] {
+  private buildDiagnostics(
+    text: string,
+    changes: Change[],
+  ): vscode.Diagnostic[] {
     const items: vscode.Diagnostic[] = [];
     const unplaced: Change[] = [];
     const seen = new Set<string>();
@@ -205,27 +235,34 @@ export class UvAlignController implements vscode.Disposable {
         continue;
       }
       for (const loc of locations) {
-        items.push(this.diagnosticFor(change, new vscode.Range(loc.line, loc.start, loc.line, loc.end)));
+        items.push(
+          this.diagnosticFor(
+            change,
+            new vscode.Range(loc.line, loc.start, loc.line, loc.end),
+          ),
+        );
       }
     }
 
     // Never drop drift silently: if a line can't be found, report it on the first line.
     for (const change of unplaced) {
-      items.push(
-        this.diagnosticFor(change, new vscode.Range(0, 0, 0, 1000), ' (could not find this line in the file)'),
-      );
+      items.push(this.diagnosticFor(change, new vscode.Range(0, 0, 0, 1000)));
     }
     return items;
   }
 
-  private diagnosticFor(change: Change, range: vscode.Range, suffix = ''): vscode.Diagnostic {
-    const resolved = change.resolvedVersion ?? 'a different version';
-    const message =
-      `${change.name}: pyproject.toml declares ${change.oldConstraint}, but uv.lock resolves ${resolved}. ` +
-      `uv-align would set ${change.newConstraint}.${suffix}`;
-    const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Warning);
-    diagnostic.source = 'uv-align';
-    diagnostic.code = 'out-of-sync';
+  private diagnosticFor(
+    change: Change,
+    range: vscode.Range,
+  ): vscode.Diagnostic {
+    const message = `Bump ${change.name}${change.oldConstraint} to ${change.newConstraint}.`;
+    const diagnostic = new vscode.Diagnostic(
+      range,
+      message,
+      vscode.DiagnosticSeverity.Warning,
+    );
+    diagnostic.source = "uv-align";
+    diagnostic.code = "out-of-sync";
     return diagnostic;
   }
 
@@ -254,16 +291,16 @@ export class UvAlignController implements vscode.Disposable {
       this.status.hide();
       return;
     }
-    this.status.text = '$(warning) uv-align';
-    this.status.tooltip = messages.join('\n');
-    this.status.command = 'uvAlign.showOutput';
+    this.status.text = "$(warning) uv-align";
+    this.status.tooltip = messages.join("\n");
+    this.status.command = "uvAlign.showOutput";
     this.status.show();
   }
 
   private async isUvProject(folder: string): Promise<boolean> {
     return (
-      (await this.exists(path.join(folder, 'pyproject.toml'))) &&
-      (await this.exists(path.join(folder, 'uv.lock')))
+      (await this.exists(path.join(folder, "pyproject.toml"))) &&
+      (await this.exists(path.join(folder, "uv.lock")))
     );
   }
 

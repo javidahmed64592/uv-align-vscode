@@ -4,3 +4,4 @@ test-fixtures
 sample-workspace
 package-lock.json
 *.vsix
+bin

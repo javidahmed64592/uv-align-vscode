@@ -144,3 +144,6 @@ tools/gotestsum.exe.hash
 *.vsix
 
 out/
+
+# Bundled uv-align binary (fetched per platform at package time)
+/bin/

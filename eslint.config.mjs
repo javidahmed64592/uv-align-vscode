@@ -15,6 +15,12 @@ export default tseslint.config(
       "simple-import-sort/exports": "error",
     },
   },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: { console: "readonly", process: "readonly", fetch: "readonly", Buffer: "readonly" },
+    },
+  },
   // ANSI escape stripping intentionally matches the ESC control character.
   { rules: { "no-control-regex": "off" } }
 );

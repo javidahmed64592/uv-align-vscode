@@ -4,6 +4,7 @@
   "description": "Underlines pyproject.toml dependencies that have drifted from uv.lock, using the uv-align CLI.",
   "version": "0.0.1",
   "publisher": "javidahmed64592",
+  "uvAlignVersion": "0.2.0",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -41,9 +42,9 @@
       "properties": {
         "uvAlign.executablePath": {
           "type": "string",
-          "default": "uv-align",
+          "default": "",
           "scope": "machine",
-          "markdownDescription": "Path to the `uv-align` executable. The default looks it up on your `PATH` (install it with `uv tool install uv-align`)."
+          "markdownDescription": "Path to the `uv-align` executable. Overrides the `uv-align` binary bundled with the extension. Leave empty to use the bundled binary, falling back to `uv-align` on your `PATH`."
         }
       }
     }
@@ -54,6 +55,8 @@
     "watch": "tsc -watch -p ./",
     "test": "npm run compile && node --test out/test/*.test.js",
     "package": "vsce package --allow-missing-repository --skip-license",
+    "package:target": "vsce package --allow-missing-repository --skip-license --target",
+    "fetch-binary": "node scripts/fetch-binary.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

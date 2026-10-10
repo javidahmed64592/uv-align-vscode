@@ -16,7 +16,21 @@ jobs:
           node-version: "25"
           cache: "npm"
           cache-dependency-path: package-lock.json
-      - uses: javidahmed64592/actions-template-python/actions/ci/npm-code-check@main
+
+      - name: Run type checking
+        run: |
+          npm run type-check
+          echo "✅ Type checking passed"
+
+      - name: Run linting
+        run: |
+          npm run lint
+          echo "✅ Linting passed"
+
+      - name: Run formatting check
+        run: |
+          npm run format
+          echo "✅ Formatting check passed"
 
   npm-tests:
     runs-on: ubuntu-latest
@@ -27,4 +41,14 @@ jobs:
           node-version: "25"
           cache: "npm"
           cache-dependency-path: package-lock.json
-      - uses: javidahmed64592/actions-template-python/actions/ci/npm-tests@main
+
+      - name: Run tests
+        run: |
+          npm run test:coverage
+          echo "✅ Tests passed"
+
+      - name: Upload frontend coverage report
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage-report
+          path: coverage

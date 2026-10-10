@@ -1,0 +1,13 @@
+[4mChanges:
+[0m
+[91m-[39m bandit           [91m>=[39m[4m[91m1.9.3[39m[0m[91m[39m
+[92m+[39m bandit           [92m>=[39m[4m[92m1.9.4[39m[0m[92m[39m
+
+[91m-[39m pydantic         [91m>=[39m[4m[91m2.10.0[39m[0m[91m[39m
+[92m+[39m pydantic         [92m>=[39m[4m[92m2.13.5[39m[0m[92m[39m
+
+[91m-[39m sphinx           [91m>=[39m[4m[91m9.0.0[39m[0m[91m[39m
+[92m+[39m sphinx           [92m>=[39m[4m[92m9.1.0[39m[0m[92m[39m
+
+[91m3[39m[91m dependencies[39m are out of sync in: [94mpyproject.toml[39m
+[93m⚠[39m Run '[92muv-align[39m [92msample-workspace/drifted[39m' without the '[92m--check[39m' flag to apply changes.

@@ -1,0 +1,1 @@
+[91m✖[39m The required file '[94muv.lock[39m' does not exist at: [94m/path/to/nolock/uv.lock[39m

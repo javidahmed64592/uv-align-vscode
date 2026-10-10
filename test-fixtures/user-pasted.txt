@@ -1,0 +1,13 @@
+Changes:
+
+- bandit           >=1.9.3
++ bandit           >=1.9.4
+
+- pydantic         >=2.10.0
++ pydantic         >=2.13.5
+
+- sphinx           >=9.0.0
++ sphinx           >=9.1.0
+
+3 dependencies are out of sync in: pyproject.toml
+⚠ Run 'uv-align .' without the '--check' flag to apply changes.

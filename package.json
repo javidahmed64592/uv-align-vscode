@@ -1,0 +1,82 @@
+{
+  "name": "uv-align-vscode",
+  "displayName": "uv-align",
+  "description": "Underlines pyproject.toml dependencies that have drifted from uv.lock, using the uv-align CLI.",
+  "version": "0.0.1",
+  "publisher": "javidahmed64592",
+  "uvAlignVersion": "0.2.0",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "keywords": [
+    "uv",
+    "python",
+    "pyproject",
+    "dependencies"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/pyproject.toml"
+  ],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "uvAlign.recheck",
+        "title": "uv-align: Re-check workspace"
+      },
+      {
+        "command": "uvAlign.showOutput",
+        "title": "uv-align: Show output"
+      }
+    ],
+    "configuration": {
+      "title": "uv-align",
+      "properties": {
+        "uvAlign.executablePath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "Path to the `uv-align` executable. Overrides the `uv-align` binary bundled with the extension. Leave empty to use the bundled binary, falling back to `uv-align` on your `PATH`."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test out/test/*.test.js",
+    "package": "vsce package --allow-missing-repository --skip-license",
+    "package:target": "vsce package --allow-missing-repository --skip-license --target",
+    "fetch-binary": "node scripts/fetch-binary.mjs",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.140.0",
+    "@vscode/vsce": "^3.0.0",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.71.1"
+  },
+  "allowScripts": {
+    "@vscode/vsce-sign@2.1.0": true,
+    "keytar@7.9.0": true
+  }
+}

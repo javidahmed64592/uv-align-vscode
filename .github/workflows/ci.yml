@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: "25"
           cache: "npm"
-          cache-dependency-path: ${{ github.event.repository.name }}-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - uses: javidahmed64592/actions-template-python/actions/ci/npm-code-check@main
 
   npm-tests:
@@ -26,5 +26,5 @@ jobs:
         with:
           node-version: "25"
           cache: "npm"
-          cache-dependency-path: ${{ github.event.repository.name }}-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - uses: javidahmed64592/actions-template-python/actions/ci/npm-tests@main

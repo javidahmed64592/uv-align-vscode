@@ -75,6 +75,20 @@ test(
       items.find(d => d.message.startsWith("Bump"))!.message,
       "Bump bandit>=1.9.3 to >=1.9.4."
     );
+
+    // Every squiggle has a matching fix that replaces just the constraint.
+    const fixes = controller!.fixesFor(abs("drifted/pyproject.toml"));
+    assert.equal(fixes.length, items.length);
+    const bandit = fixes.find(f => f.packageName === "bandit")!;
+    assert.equal(bandit.newConstraint, ">=1.9.4");
+    const { line } = bandit.constraintRange.start;
+    assert.equal(
+      text[line].slice(
+        bandit.constraintRange.start.character,
+        bandit.constraintRange.end.character
+      ),
+      ">=1.9.3"
+    );
   }
 );
 

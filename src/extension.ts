@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { UvAlignCodeActionProvider } from "./codeActions";
 import { UvAlignController } from "./controller";
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -8,7 +9,12 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     controller,
     vscode.commands.registerCommand("uvAlign.recheck", () => controller.recheck()),
-    vscode.commands.registerCommand("uvAlign.showOutput", () => controller.showOutput())
+    vscode.commands.registerCommand("uvAlign.showOutput", () => controller.showOutput()),
+    vscode.languages.registerCodeActionsProvider(
+      { scheme: "file", pattern: "**/pyproject.toml" },
+      new UvAlignCodeActionProvider(controller),
+      { providedCodeActionKinds: UvAlignCodeActionProvider.kinds }
+    )
   );
 }
 

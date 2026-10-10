@@ -7,6 +7,16 @@ import { locateChange } from "./locator";
 import { Change, normaliseName } from "./parser";
 import { CheckOutcome, runCheck } from "./runner";
 
+/** A one-click edit that replaces an out-of-sync constraint with the one from uv.lock. */
+export interface Fix {
+  /** The underlined range (name through constraint). */
+  range: vscode.Range;
+  /** Range of just the constraint text, which is what gets replaced. */
+  constraintRange: vscode.Range;
+  newConstraint: string;
+  packageName: string;
+}
+
 const EXCLUDED_DIRS = [
   "node_modules",
   ".venv",
@@ -39,6 +49,7 @@ export class UvAlignController implements vscode.Disposable {
   private readonly timers = new Map<string, NodeJS.Timeout>();
   /** Identifies the newest run per folder, so slow older runs can be discarded. */
   private readonly latestRun = new Map<string, object>();
+  private readonly fixes = new Map<string, Fix[]>();
   private readonly problems = new Map<string, string>();
   private readonly disposables: vscode.Disposable[] = [];
   private disposed = false;
@@ -67,6 +78,11 @@ export class UvAlignController implements vscode.Disposable {
       this.schedule(folder, 0);
     }
     void this.scan();
+  }
+
+  /** Fixes for the diagnostics currently shown in the given pyproject.toml. */
+  fixesFor(fsPath: string): readonly Fix[] {
+    return this.fixes.get(fsPath) ?? [];
   }
 
   showOutput(): void {
@@ -162,6 +178,7 @@ export class UvAlignController implements vscode.Disposable {
     switch (outcome.kind) {
       case "in-sync":
         this.diagnostics.delete(pyproject);
+        this.fixes.delete(pyproject.fsPath);
         this.setProblem(folder, undefined);
         this.log(`${folder}: in sync`);
         return;
@@ -176,7 +193,9 @@ export class UvAlignController implements vscode.Disposable {
         if (this.disposed || this.latestRun.get(folder) !== run) {
           return;
         }
-        this.diagnostics.set(pyproject, this.buildDiagnostics(text, outcome.changes));
+        const fixes: Fix[] = [];
+        this.diagnostics.set(pyproject, this.buildDiagnostics(text, outcome.changes, fixes));
+        this.fixes.set(pyproject.fsPath, fixes);
         this.setProblem(folder, undefined);
         this.log(`${folder}: ${outcome.changes.length} out of sync`);
         return;
@@ -184,6 +203,7 @@ export class UvAlignController implements vscode.Disposable {
 
       case "missing-binary":
         this.diagnostics.delete(pyproject);
+        this.fixes.delete(pyproject.fsPath);
         this.setProblem(
           folder,
           `Could not run '${outcome.executable}'. Install it with "uv tool install uv-align" or set uvAlign.executablePath.`
@@ -193,13 +213,14 @@ export class UvAlignController implements vscode.Disposable {
 
       case "error":
         this.diagnostics.delete(pyproject);
+        this.fixes.delete(pyproject.fsPath);
         this.setProblem(folder, `${path.basename(folder)}: ${outcome.message}`);
         this.log(`${folder}: ${outcome.message}\n${outcome.output}`);
         return;
     }
   }
 
-  private buildDiagnostics(text: string, changes: Change[]): vscode.Diagnostic[] {
+  private buildDiagnostics(text: string, changes: Change[], fixes: Fix[]): vscode.Diagnostic[] {
     const items: vscode.Diagnostic[] = [];
     const unplaced: Change[] = [];
     const seen = new Set<string>();
@@ -218,9 +239,14 @@ export class UvAlignController implements vscode.Disposable {
         continue;
       }
       for (const loc of locations) {
-        items.push(
-          this.diagnosticFor(change, new vscode.Range(loc.line, loc.start, loc.line, loc.end))
-        );
+        const range = new vscode.Range(loc.line, loc.start, loc.line, loc.end);
+        items.push(this.diagnosticFor(change, range));
+        fixes.push({
+          range,
+          constraintRange: new vscode.Range(loc.line, loc.constraintStart, loc.line, loc.end),
+          newConstraint: change.newConstraint,
+          packageName: change.name,
+        });
       }
     }
 
@@ -246,6 +272,7 @@ export class UvAlignController implements vscode.Disposable {
     const pyproject = this.projects.get(folder);
     if (pyproject) {
       this.diagnostics.delete(pyproject);
+      this.fixes.delete(pyproject.fsPath);
       this.projects.delete(folder);
     }
     this.setProblem(folder, undefined);

@@ -22,7 +22,8 @@ test("falls back to PATH when nothing is bundled", () => {
 });
 
 test("uses the bundled binary when present", () => {
-  assert.equal(resolveExecutable(undefined, root), withBundled());
+  const bundled = withBundled();
+  assert.equal(resolveExecutable(undefined, root), bundled);
 });
 
 test("the configured path wins over the bundled binary", () => {

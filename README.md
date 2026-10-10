@@ -5,6 +5,11 @@ Hover the yellow squiggle to see the mismatch:
 
 > Bump bandit>=1.9.3 to >=1.9.4.
 
+## Quick fix
+
+Hover the squiggle and click **Quick Fix…** (`Ctrl+.` / `Cmd+.`), then choose **Bump bandit to >=1.9.4** to rewrite the constraint in place.
+Only the version constraint is replaced, so the package name and any extras stay as they are.
+
 ## How it decides what to check
 
 A folder is treated as a `uv`-managed project only if it contains **both** `pyproject.toml` and `uv.lock`.
@@ -46,7 +51,7 @@ npm test
 
 Parser and locator tests run on real captured `uv-align` output (`test-fixtures/`).
 Tests that need the actual CLI use `uv-align` from your `PATH` (or `UV_ALIGN_BIN`) and are skipped if it is missing.
-The controller tests run against a small in-memory mock of the VS Code API rather than a real VS Code window.
+The quick fix provider and controller tests run against a small in-memory mock of the VS Code API rather than a real VS Code window.
 
 ## QA
 

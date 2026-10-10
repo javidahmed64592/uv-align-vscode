@@ -44,11 +44,5 @@ jobs:
 
       - name: Run tests
         run: |
-          npm run test:coverage
+          npm run test
           echo "✅ Tests passed"
-
-      - name: Upload frontend coverage report
-        uses: actions/upload-artifact@v7
-        with:
-          name: frontend-coverage-report
-          path: coverage

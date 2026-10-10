@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { UvAlignController } from "./controller";
 
 export function activate(context: vscode.ExtensionContext): void {
-  const controller = new UvAlignController();
+  const controller = new UvAlignController(context.extensionPath);
   controller.start();
   context.subscriptions.push(
     controller,

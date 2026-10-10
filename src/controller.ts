@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import * as vscode from "vscode";
 
+import { resolveExecutable } from "./binary";
 import { locateChange } from "./locator";
 import { Change, normaliseName } from "./parser";
 import { CheckOutcome, runCheck } from "./runner";
@@ -41,6 +42,8 @@ export class UvAlignController implements vscode.Disposable {
   private readonly problems = new Map<string, string>();
   private readonly disposables: vscode.Disposable[] = [];
   private disposed = false;
+
+  constructor(private readonly extensionPath?: string) {}
 
   start(): void {
     const watcher = vscode.workspace.createFileSystemWatcher("**/{pyproject.toml,uv.lock}");
@@ -143,7 +146,7 @@ export class UvAlignController implements vscode.Disposable {
     this.latestRun.set(folder, run);
 
     const configured = vscode.workspace.getConfiguration("uvAlign").get<string>("executablePath");
-    const outcome = await runCheck(configured || "uv-align", folder);
+    const outcome = await runCheck(resolveExecutable(configured, this.extensionPath), folder);
     if (this.disposed || this.latestRun.get(folder) !== run) {
       return;
     }

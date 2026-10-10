@@ -38,6 +38,42 @@ export class Range {
     this.start = { line: startLine, character: startChar };
     this.end = { line: endLine, character: endChar };
   }
+  isEqual(other: Range): boolean {
+    return (
+      this.start.line === other.start.line &&
+      this.start.character === other.start.character &&
+      this.end.line === other.end.line &&
+      this.end.character === other.end.character
+    );
+  }
+  /** Single-line overlap is all the tests need; touching ranges intersect, as in VS Code. */
+  intersection(other: Range): Range | undefined {
+    if (this.start.line !== other.start.line || this.end.line !== other.end.line) {
+      return undefined;
+    }
+    const start = Math.max(this.start.character, other.start.character);
+    const end = Math.min(this.end.character, other.end.character);
+    return start <= end ? new Range(this.start.line, start, this.end.line, end) : undefined;
+  }
+}
+
+export const CodeActionKind = { QuickFix: "quickfix" } as const;
+
+export class WorkspaceEdit {
+  readonly edits: { uri: Uri; range: Range; newText: string }[] = [];
+  replace(uri: Uri, range: Range, newText: string): void {
+    this.edits.push({ uri, range, newText });
+  }
+}
+
+export class CodeAction {
+  diagnostics?: Diagnostic[];
+  isPreferred?: boolean;
+  edit?: WorkspaceEdit;
+  constructor(
+    readonly title: string,
+    readonly kind?: string
+  ) {}
 }
 
 export const DiagnosticSeverity = { Error: 0, Warning: 1, Information: 2, Hint: 3 } as const;
@@ -112,6 +148,9 @@ export const sleep = (ms: number): Promise<void> => new Promise(resolve => setTi
 export const api = {
   Uri,
   Range,
+  CodeAction,
+  CodeActionKind,
+  WorkspaceEdit,
   Diagnostic,
   DiagnosticSeverity,
   StatusBarAlignment: { Left: 1, Right: 2 },

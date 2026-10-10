@@ -5,6 +5,8 @@ export interface Location {
   line: number;
   start: number;
   end: number;
+  /** Column where the version constraint begins (after the name and extras). */
+  constraintStart: number;
 }
 
 interface QuotedString {
@@ -109,6 +111,7 @@ export function locateChange(text: string, change: Change): Location[] {
       line: str.line,
       start: str.column + nameStart,
       end: str.column + constraintEnd,
+      constraintStart: str.column + constraintStart,
     });
   }
   return found;

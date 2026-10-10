@@ -103,3 +103,11 @@ test("quotedStrings survives an unterminated string", () => {
   const values = [...quotedStrings('a = "oops\nb = "fine"\n')].map(s => s.value);
   assert.deepEqual(values, ["fine"]);
 });
+
+test("reports where the constraint starts, after the name and extras", () => {
+  const text = 'dependencies = ["httpx[http2] >= 0.27", "requests>=2.30.0"]';
+  const [httpx] = locateChange(text, change("httpx", ">=0.27"));
+  const [requests] = locateChange(text, change("requests", ">=2.30.0"));
+  assert.equal(text.slice(httpx.constraintStart, httpx.end), ">= 0.27");
+  assert.equal(text.slice(requests.constraintStart, requests.end), ">=2.30.0");
+});

@@ -1,7 +1,7 @@
 // Downloads the uv-align release for one platform into bin/, so it can be bundled in a
 // platform-specific VSIX. Usage: node scripts/fetch-binary.mjs <vscode-target> [version]
 // e.g. node scripts/fetch-binary.mjs linux-x64 0.2.0
-// The version defaults to "uvAlignVersion" in package.json.
+// The version defaults to the latest uv-align release.
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
@@ -16,20 +16,19 @@ const TARGETS = {
   "win32-x64": "x86_64-pc-windows-msvc",
 };
 
-const manifest = JSON.parse(
-  fs.readFileSync(path.join(import.meta.dirname, "..", "package.json"), "utf8")
-);
 const [target, requested] = process.argv.slice(2);
-const version = requested ?? manifest.uvAlignVersion;
 const triple = TARGETS[target];
-if (!triple || !version) {
+if (!triple) {
   console.error(`Usage: fetch-binary.mjs <${Object.keys(TARGETS).join("|")}> [version]`);
   process.exit(1);
 }
 
 const windows = target.startsWith("win32");
 const archive = `uv-align-${triple}.${windows ? "zip" : "tar.xz"}`;
-const url = `https://github.com/javidahmed64592/uv-align/releases/download/v${version}/${archive}`;
+const releases = "https://github.com/javidahmed64592/uv-align/releases";
+const url = requested
+  ? `${releases}/download/v${requested}/${archive}`
+  : `${releases}/latest/download/${archive}`;
 const binary = windows ? "uv-align.exe" : "uv-align";
 
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "uva-fetch-"));
@@ -57,7 +56,9 @@ try {
   fs.mkdirSync(out);
   fs.copyFileSync(path.join(scratch, String(found)), path.join(out, binary));
   fs.chmodSync(path.join(out, binary), 0o755);
-  console.log(`Bundled ${binary} v${version} (${triple}) into bin/`);
+  console.log(
+    `Bundled ${requested ? `${binary} v${requested}` : `latest ${binary}`} (${triple}) into bin/`
+  );
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
 }

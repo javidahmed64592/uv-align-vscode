@@ -73,11 +73,11 @@ npm run package:target -- linux-x64
 code --install-extension uv-align-vscode-linux-x64-0.0.1.vsix
 ```
 
-The bundled CLI version is `uvAlignVersion` in `package.json` (pass a version as a second argument to override).
+The latest `uv-align` release is bundled by default (pass a version as a second argument to pin one).
 Targets: `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, `win32-x64`.
 `npm run package` without a binary builds a universal VSIX that relies on `PATH`.
 
 ## Release
 
-Pushing a `v*` tag (or running the **Publish** workflow manually) builds one VSIX per platform, each with the `uv-align` version from `uvAlignVersion` bundled, then publishes them all to the Marketplace.
+Pushing a `v*` tag (or running the **Publish** workflow manually) builds one VSIX per platform, each with the latest `uv-align` release bundled, then publishes them all to the Marketplace.
 It needs a `VSCE_PAT` repository secret (a Marketplace personal access token).

@@ -4,7 +4,7 @@
   "description": "Underlines pyproject.toml dependencies that have drifted from uv.lock, using the uv-align CLI.",
   "version": "0.0.1",
   "publisher": "javidahmed64592",
-  "uvAlignVersion": "0.2.0",
+  "uvAlignVersion": "0.2.1",
   "engines": {
     "vscode": "^1.140.0"
   },
